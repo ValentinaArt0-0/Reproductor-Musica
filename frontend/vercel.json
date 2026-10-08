@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/media/:path*", "destination": "https://reproductor-musica-backend.onrender.com/media/:path*" },
+    { "source": "/api/:path*", "destination": "https://reproductor-musica-backend.onrender.com/api/:path*" }
+  ]
+}
