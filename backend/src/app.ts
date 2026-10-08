@@ -30,7 +30,7 @@ export function createApp(config: AppConfig): Express {
 
   const app = express();
   app.disable("x-powered-by");
-  app.use(cors({ origin: config.clientOrigin.split(",").map((o) => o.trim()) }));
+ app.use(cors());
   app.use(express.json({ limit: "100kb" }));
 
   app.use(
