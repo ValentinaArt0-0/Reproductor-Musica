@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ * `--color-*: initial` wipes Tailwind's default palette, so `bg-white`, `text-black`
+ * and friends simply do not exist: the only colors available are the ones below,
+ * and none of them is pure white (#ffffff) or pure black (#000000).
+ * `static` makes every token available as a CSS variable (used by the seek bar).
+ */
+@theme static {
+  --color-*: initial;
+
+  /* Sand: page and surfaces */
+  --color-sand-50: #faf7f0;
+  --color-sand-100: #f4f1ea;
+  --color-sand-200: #ebe6da;
+  --color-sand-300: #ddd6c5;
+
+  /* Sage: main brand color */
+  --color-sage-100: #e8eceb;
+  --color-sage-200: #d5ddda;
+  --color-sage-300: #b9c7c1;
+  --color-sage-400: #9db0a7;
+  --color-sage-500: #7f9a8e;
+  --color-sage-600: #667f73;
+  --color-sage-700: #526860;
+  --color-sage-800: #3f524b;
+
+  /* Muted lavender: secondary accent */
+  --color-lavender-100: #ece9f2;
+  --color-lavender-200: #d9d4e6;
+  --color-lavender-300: #bfb7d6;
+  --color-lavender-400: #a59cc2;
+  --color-lavender-500: #8d83ac;
+
+  /* Ink: text (deep green-gray instead of black) */
+  --color-ink-500: #5b6a64;
+  --color-ink-700: #3a4640;
+  --color-ink-800: #2f3a36;
+  --color-ink-900: #262f2c;
+
+  /* Clay: warm accent for destructive actions */
+  --color-clay-100: #f3e4dc;
+  --color-clay-500: #b9806a;
+  --color-clay-600: #9f6a56;
+  --color-clay-700: #84533f;
+
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+
+  /* Shadows are tinted with the sage hue instead of black */
+  --shadow-soft: 0 1px 2px rgb(63 82 75 / 0.06), 0 12px 32px -12px rgb(63 82 75 / 0.22);
+  --shadow-lift: 0 2px 4px rgb(63 82 75 / 0.1), 0 10px 22px -8px rgb(63 82 75 / 0.38);
+  --shadow-bar: 0 -10px 36px -14px rgb(63 82 75 / 0.3);
+}
+
+@layer base {
+  /* Tailwind's internal default for ring offsets is #fff; point it at our sand instead. */
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    --tw-ring-offset-color: var(--color-sand-100);
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-sand-100);
+    background-image:
+      radial-gradient(60rem 40rem at 0% -10%, rgb(157 176 167 / 0.3), transparent 60%),
+      radial-gradient(50rem 36rem at 100% 110%, rgb(165 156 194 / 0.24), transparent 60%);
+    background-attachment: fixed;
+    color: var(--color-ink-800);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--color-sage-300);
+    color: var(--color-ink-900);
+  }
+}
+
+/* ------------------------------------------------------------ seek bar */
+.seek {
+  --progress: 0%;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+.seek:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.seek:focus-visible {
+  outline: 2px solid var(--color-lavender-500);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+.seek::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-sage-600) var(--progress),
+    var(--color-sage-300) var(--progress)
+  );
+}
+.seek::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-sage-300);
+}
+.seek::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-sage-600);
+}
+.seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 50%;
+  border: 2px solid var(--color-sage-700);
+  background: var(--color-sand-50);
+  box-shadow: var(--shadow-lift);
+  transition: transform 150ms ease;
+}
+.seek::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--color-sage-700);
+  background: var(--color-sand-50);
+  transition: transform 150ms ease;
+}
+.seek:not(:disabled):hover::-webkit-slider-thumb,
+.seek:not(:disabled):active::-webkit-slider-thumb {
+  transform: scale(1.25);
+}
+.seek:not(:disabled):hover::-moz-range-thumb,
+.seek:not(:disabled):active::-moz-range-thumb {
+  transform: scale(1.25);
+}
+
+/* ------------------------------------------------------------ equalizer */
+.eq-bar {
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--color-sage-700);
+  transform-origin: bottom;
+  transform: scaleY(0.35);
+  animation: eq 1.1s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.eq[data-playing="true"] .eq-bar {
+  animation-play-state: running;
+}
+.eq-bar:nth-child(2) {
+  animation-delay: -0.45s;
+}
+.eq-bar:nth-child(3) {
+  animation-delay: -0.8s;
+}
+@keyframes eq {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eq-bar {
+    animation: none;
+    transform: scaleY(0.6);
+  }
+}
