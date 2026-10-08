@@ -39,10 +39,14 @@ function buildError(status: number, body: ErrorBody | null): ApiError {
 const isAbort = (error: unknown): boolean =>
   error instanceof DOMException && error.name === "AbortError";
 
+// Definimos la URL base del backend: lee la variable de entorno de Vercel o usa cadena vacía para el proxy local de Vite
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "";
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
+  const url = `${API_BASE_URL}${path}`;
   try {
-    response = await fetch(path, init);
+    response = await fetch(url, init);
   } catch (error) {
     if (isAbort(error)) throw error; // cancelled on purpose (e.g. a newer search): not a failure
     throw new ApiError(CONNECTION_MESSAGE, 0, "NETWORK");
@@ -138,13 +142,15 @@ export function uploadFiles(
   form.append("position", position);
   for (const file of files) form.append("files", file);
 
+  const uploadUrl = `${API_BASE_URL}/api/uploads`;
+
   if (!onProgress || typeof XMLHttpRequest === "undefined") {
     return request<UploadResponse>("/api/uploads", { method: "POST", body: form });
   }
 
   return new Promise<UploadResponse>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/uploads");
+    xhr.open("POST", uploadUrl);
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress(event.loaded / event.total);
     };
